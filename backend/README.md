@@ -1,6 +1,6 @@
 ## Backend
 
-Python backend initialized with `uv`.
+Django backend initialized with `uv`.
 
 ### Commands
 
@@ -13,6 +13,7 @@ uv sync
 Run Python commands through `uv`:
 
 ```bash
-uv run python --version
-uv run python main.py
+uv run python manage.py check
+uv run python manage.py migrate
+uv run python manage.py runserver
 ```
