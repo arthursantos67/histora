@@ -24,8 +24,22 @@ def get_default_database() -> dict[str, str | Path]:
     }
 
 
+def get_postgres_database() -> dict[str, str | int]:
+    return {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", ""),
+        "USER": os.getenv("POSTGRES_USER", ""),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+        "HOST": os.getenv("POSTGRES_HOST", "localhost"),
+        "PORT": int(os.getenv("POSTGRES_PORT", "5432")),
+    }
+
+
 def get_database_config() -> dict[str, str | int | Path]:
     database_url = os.getenv("DATABASE_URL")
+    if not database_url and os.getenv("POSTGRES_DB"):
+        return get_postgres_database()
+
     if not database_url:
         return get_default_database()
 
@@ -126,6 +140,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': get_database_config(),
 }
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 
 # Password validation
