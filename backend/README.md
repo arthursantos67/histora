@@ -1,47 +1,66 @@
-## Backend
+# Backend
 
-Django backend initialized with `uv`.
+Django backend for Histora.
 
-### App layout
+The backend runs inside Docker Compose. The host machine should only need Docker;
+Python and `uv` are installed and executed inside the backend container.
+
+## Runtime
+
+- Python 3.14
+- Django + Django REST Framework
+- PostgreSQL
+- Redis
+- Dependency management with `uv` inside Docker
 
 The backend is organized by domain under `backend/apps/`.
 
 - `apps/platform`: platform-level concerns such as health and operational endpoints
+- `apps/accounts`: custom user model and authentication endpoints
 
-This structure leaves room for future apps to be added with clearer domain boundaries.
-
-### Commands
-
-Install and sync dependencies:
-
-```bash
-uv sync
-```
+## Commands
 
 Run common workflows from the repository root:
 
 ```bash
+make build
+make up
+make down
 make check
 make makemigrations
 make migrate
 make test
-make test-app APP=platform
-make runserver
+make test-app APP=accounts
+make shell
 ```
 
-Run Python commands directly through `uv` from `backend/` when needed:
+The `make` commands call `docker compose` and run Django inside the `web`
+container. For direct one-off commands, use:
 
 ```bash
-uv run python manage.py check
-uv run python manage.py migrate
-uv run python manage.py test apps.platform
-uv run python manage.py runserver
+docker compose run --rm web python manage.py check
+docker compose run --rm web python manage.py migrate
+docker compose run --rm web python manage.py test apps.accounts
 ```
 
-Run the containerized development environment from the repository root:
+If the backend container is already running, commands can also be executed with:
 
 ```bash
-docker compose up --build
+docker compose exec web python manage.py check
 ```
 
-The backend is available at `http://localhost:8000` with live reload enabled through the bind mount in `docker-compose.yml`.
+Start the local development environment:
+
+```bash
+make up
+```
+
+The backend is available at `http://localhost:8000` with live reload enabled by
+the bind mount in `docker-compose.yml`.
+
+The project defaults to `config.settings.dev`. To load production settings
+explicitly, set:
+
+```bash
+DJANGO_SETTINGS_MODULE=config.settings.prod
+```

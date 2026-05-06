@@ -1,24 +1,38 @@
-BACKEND_DIR := backend
-UV_CACHE_DIR ?= /tmp/uv-cache
-MANAGE := UV_CACHE_DIR=$(UV_CACHE_DIR) uv run python manage.py
+COMPOSE := docker compose
+MANAGE := $(COMPOSE) run --rm web python manage.py
 APP ?= platform
 
-.PHONY: check makemigrations migrate test test-app runserver
+.PHONY: build up down logs shell check makemigrations migrate test test-app runserver
 
-check:
-	cd $(BACKEND_DIR) && $(MANAGE) check
+build:
+	$(COMPOSE) build
+
+up:
+	$(COMPOSE) up --build web
+
+down:
+	$(COMPOSE) down
+
+logs:
+	$(COMPOSE) logs -f web
+
+shell:
+	$(MANAGE) shell
 
 makemigrations:
-	cd $(BACKEND_DIR) && $(MANAGE) makemigrations
+	$(MANAGE) makemigrations
 
 migrate:
-	cd $(BACKEND_DIR) && $(MANAGE) migrate
+	$(MANAGE) migrate
+
+check:
+	$(MANAGE) check
 
 test:
-	cd $(BACKEND_DIR) && $(MANAGE) test
+	$(MANAGE) test
 
 test-app:
-	cd $(BACKEND_DIR) && $(MANAGE) test apps.$(APP)
+	$(MANAGE) test apps.$(APP)
 
 runserver:
-	cd $(BACKEND_DIR) && $(MANAGE) runserver
+	$(MAKE) up
